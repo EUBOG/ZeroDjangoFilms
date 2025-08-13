@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Список фильмов{% endblock %}
+
+{% block content %}
+<h1>Список фильмов</h1>
+
+<!-- Поиск и сортировка -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="get" class="d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Поиск по названию..." value="{{ query }}">
+            <button class="btn btn-outline-secondary" type="submit">🔍</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <form method="get" class="d-flex">
+            <!-- Передаём текущий поиск при смене сортировки -->
+            {% if query %}
+                <input type="hidden" name="q" value="{{ query }}">
+            {% endif %}
+            <select name="order" class="form-select me-2" onchange="this.form.submit()">
+                <option value="newest" {% if order == 'newest' %}selected{% endif %}>Сначала новые</option>
+                <option value="oldest" {% if order == 'oldest' %}selected{% endif %}>Сначала старые</option>
+                <option value="title_asc" {% if order == 'title_asc' %}selected{% endif %}>По названию А-Я</option>
+                <option value="title_desc" {% if order == 'title_desc' %}selected{% endif %}>По названию Я-А</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Кнопка добавления -->
+<a href="{% url 'films:add_film' %}" class="btn btn-primary mb-3">Добавить фильм</a>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if films %}
+    <div class="row">
+        {% for film in films %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    {% if film.image %}
+                        <img src="{{ film.image.url }}" class="card-img-top" alt="Постер: {{ film.title }}" style="height: 300px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light text-center text-muted py-4" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                            Нет постера
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ film.title }}</h5>
+                        {% if film.description %}
+                            <p class="card-text">{{ film.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        {% if film.review %}
+                            <small><strong>Отзыв:</strong> {{ film.review|truncatewords:15 }}</small>
+                        {% endif %}
+                        <br>
+                        <small class="text-muted">Добавлено: {{ film.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'films:edit_film' film.pk %}" class="btn btn-warning btn-sm">Редактировать</a>
+                        <form method="post" action="{% url 'films:delete_film' film.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Удалить фильм?');">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Пока нет ни одного фильма. <a href="{% url 'films:add_film' %}">Добавьте первый!</a></p>
+{% endif %}
+
+{% endblock %}

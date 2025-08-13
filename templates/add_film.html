@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Добавить фильм{% endblock %}
+
+{% block content %}
+<h1>
+    {% if film %}
+        Редактировать фильм "{{ film.title }}"
+    {% else %}
+        Добавить фильм
+    {% endif %}
+</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{ form.as_p }}  <!-- ⭐ Это отобразит ВСЕ поля автоматически -->
+
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a href="{% url 'films:film_list' %}" class="btn btn-secondary">Назад к списку</a>
+</form>
+{% endblock %}

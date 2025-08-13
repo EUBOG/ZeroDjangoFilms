@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Удалить фильм?{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h3>Вы уверены, что хотите удалить фильм?</h3>
+        <p><strong>{{ film.title }}</strong></p>
+        {% if film.description %}
+            <p>{{ film.description|truncatewords:30 }}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Да, удалить</button>
+            <a href="{% url 'films:film_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
